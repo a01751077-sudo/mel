@@ -323,6 +323,7 @@ class MemoryOptimizationEngine:
         stats = await self.get_current_stats()
         
         return {
+            'enabled': self.is_running,
             'running': self.is_running,
             'stats': stats,
             'sub_engines': {

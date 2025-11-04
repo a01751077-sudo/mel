@@ -177,7 +177,7 @@ class ThreatDetector:
         
         try:
             # Scan running processes
-            for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'connections']):
+            for proc in psutil.process_iter(['pid', 'name', 'cpu_percent']):
                 try:
                     info = proc.info
                     proc_name = info['name'].lower() if info['name'] else ''
