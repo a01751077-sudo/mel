@@ -15,6 +15,14 @@ from collections import defaultdict, deque
 from loguru import logger
 import psutil
 
+# Import penetration testing system
+try:
+    from pentest.pentest_core import PentestCore
+    PENTEST_AVAILABLE = True
+except ImportError:
+    PENTEST_AVAILABLE = False
+    logger.warning("Penetration testing module not available")
+
 
 class BehavioralAnalyzer:
     """Behavioral analysis for process monitoring"""
@@ -316,11 +324,21 @@ class SecurityEngine:
         self.threat_detector = ThreatDetector()
         self.protection_manager = ProtectionManager()
         
+        # Initialize penetration testing system if available
+        self.pentest_core = None
+        if PENTEST_AVAILABLE and config.get('enable_pentest', False):
+            try:
+                self.pentest_core = PentestCore()
+                logger.info("🎯 Penetration testing system integrated")
+            except Exception as e:
+                logger.warning(f"Failed to initialize pentest system: {e}")
+        
         # Security metrics
         self.performance_multiplier = 1.0
         self.threats_detected = 0
         self.anomalies_detected = 0
         self.monitoring_thread = None
+        self.pentest_available = PENTEST_AVAILABLE and self.pentest_core is not None
         
         logger.info("🔧 Security Engine initialized")
     
@@ -563,3 +581,67 @@ class SecurityEngine:
             base_multiplier += 0.2
         
         self.performance_multiplier = min(base_multiplier, 5.0)  # Cap at 5x
+    
+    # Penetration Testing Methods
+    async def initialize_pentest_system(self) -> bool:
+        """Initialize the penetration testing system"""
+        if not self.pentest_available:
+            logger.warning("❌ Penetration testing system not available")
+            return False
+        
+        try:
+            success = await self.pentest_core.initialize_system()
+            if success:
+                logger.success("✅ Penetration testing system initialized")
+            return success
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize pentest system: {e}")
+            return False
+    
+    async def run_penetration_test(self, target_url: str) -> Dict[str, Any]:
+        """Run penetration test on target"""
+        if not self.pentest_available:
+            return {'success': False, 'error': 'Penetration testing not available'}
+        
+        try:
+            result = await self.pentest_core.run_penetration_test(target_url)
+            return result
+        except Exception as e:
+            logger.error(f"❌ Penetration test failed: {e}")
+            return {'success': False, 'error': str(e)}
+    
+    async def test_single_vulnerability(self, target: str, vuln_id: int) -> Dict[str, Any]:
+        """Test a single vulnerability"""
+        if not self.pentest_available:
+            return {'success': False, 'error': 'Penetration testing not available'}
+        
+        try:
+            result = await self.pentest_core.test_single_vulnerability(target, vuln_id)
+            return result
+        except Exception as e:
+            logger.error(f"❌ Vulnerability test failed: {e}")
+            return {'success': False, 'error': str(e)}
+    
+    async def generate_zero_day_exploits(self, target: str) -> Dict[str, Any]:
+        """Generate zero-day exploits for target"""
+        if not self.pentest_available:
+            return {'success': False, 'error': 'Penetration testing not available'}
+        
+        try:
+            result = await self.pentest_core.generate_zero_day_exploits(target)
+            return result
+        except Exception as e:
+            logger.error(f"❌ Zero-day generation failed: {e}")
+            return {'success': False, 'error': str(e)}
+    
+    def get_pentest_status(self) -> Dict[str, Any]:
+        """Get penetration testing system status"""
+        if not self.pentest_available:
+            return {'available': False, 'error': 'Penetration testing not available'}
+        
+        try:
+            status = self.pentest_core.get_system_status()
+            status['available'] = True
+            return status
+        except Exception as e:
+            return {'available': False, 'error': str(e)}
