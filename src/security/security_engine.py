@@ -326,7 +326,7 @@ class SecurityEngine:
         
         # Initialize penetration testing system if available
         self.pentest_core = None
-        if PENTEST_AVAILABLE and config.get('enable_pentest', False):
+        if PENTEST_AVAILABLE and getattr(config, 'enable_pentest', False):
             try:
                 self.pentest_core = PentestCore()
                 logger.info("🎯 Penetration testing system integrated")

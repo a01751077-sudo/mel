@@ -93,6 +93,7 @@ class SecurityConfig:
     scan_only_when_idle: bool = True
     zero_impact_mode: bool = True
     threat_detection_sensitivity: str = "balanced"  # low, balanced, high
+    enable_pentest: bool = False  # Enable penetration testing integration
 
 
 @dataclass

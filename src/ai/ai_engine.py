@@ -642,11 +642,29 @@ class AIOptimizationEngine:
     
     async def predict_resource_needs(self) -> Dict[str, Any]:
         """Predict resource needs"""
-        predictions = await self.generate_predictions()
-        return {
-            "memory_usage_percent": predictions.get('resource_predictions', {}).get('memory_usage', 50),
-            "applications": list(predictions.get('application_predictions', {}).keys())
-        }
+        try:
+            predictions = await self.generate_predictions()
+            if not isinstance(predictions, dict):
+                predictions = {}
+            
+            resource_predictions = predictions.get('resource_predictions', {})
+            if not isinstance(resource_predictions, dict):
+                resource_predictions = {}
+            
+            application_predictions = predictions.get('application_predictions', {})
+            if not isinstance(application_predictions, dict):
+                application_predictions = {}
+            
+            return {
+                "memory_usage_percent": resource_predictions.get('memory_usage', 50),
+                "applications": list(application_predictions.keys())
+            }
+        except Exception as e:
+            logger.error(f"Error in predict_resource_needs: {e}")
+            return {
+                "memory_usage_percent": 50,
+                "applications": []
+            }
     
     async def _start_monitoring(self) -> bool:
         """Start AI monitoring thread"""
