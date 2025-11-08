@@ -463,8 +463,11 @@ class SecurityEngine:
     async def configure_for_hardware(self, hardware_info: Dict[str, Any]):
         """Configure security engine for specific hardware"""
         try:
-            cpu_cores = hardware_info.get('cpu_cores', 4)
-            memory_gb = hardware_info.get('memory_gb', 4)
+            cpu_info = hardware_info.get('cpu')
+            memory_info = hardware_info.get('memory')
+            
+            cpu_cores = getattr(cpu_info, 'cores_logical', 4) if cpu_info else 4
+            memory_gb = getattr(memory_info, 'total_gb', 4) if memory_info else 4
             
             # Adjust security monitoring based on hardware capabilities
             if cpu_cores >= 8 and memory_gb >= 16:

@@ -285,7 +285,8 @@ class ConfigManager:
         optimized_config = self.config
         
         # Optimize memory settings based on available RAM
-        total_ram_gb = hardware_info.get('memory', {}).get('total_gb', 4)
+        memory_info = hardware_info.get('memory')
+        total_ram_gb = getattr(memory_info, 'total_gb', 4) if memory_info else 4
         if total_ram_gb <= 4:
             optimized_config.memory.zram_size_percent = 30
             optimized_config.memory.aggressive_mode = True
@@ -309,7 +310,8 @@ class ConfigManager:
             optimized_config.storage.compression_level = 9  # Higher compression for HDD
         
         # Optimize CPU settings
-        cpu_cores = hardware_info.get('cpu', {}).get('cores', 2)
+        cpu_info = hardware_info.get('cpu')
+        cpu_cores = getattr(cpu_info, 'cores_logical', 2) if cpu_info else 2
         optimized_config.gpu.software_rendering_threads = max(1, cpu_cores - 1)
         
         return optimized_config

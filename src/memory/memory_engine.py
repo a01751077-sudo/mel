@@ -359,20 +359,21 @@ class MemoryOptimizationEngine:
     
     async def configure_for_hardware(self, hardware_info: Dict[str, Any]):
         """Configure memory engine for specific hardware"""
-        memory_info = hardware_info.get('memory', {})
-        cpu_info = hardware_info.get('cpu', {})
+        memory_info = hardware_info.get('memory')
+        cpu_info = hardware_info.get('cpu')
         
         # Adjust configuration based on hardware
-        if memory_info.get('total_gb', 4) <= 4:
+        if memory_info and hasattr(memory_info, 'total_gb') and memory_info.total_gb <= 4:
             self.config.aggressive_mode = True
             self.config.zram_size_percent = 35
             self.config.max_compression_ratio = 6.0
         
         # Adjust compression threads based on CPU cores
-        cpu_cores = cpu_info.get('cores_logical', 2)
+        cpu_cores = getattr(cpu_info, 'cores_logical', 2) if cpu_info else 2
         await self.compression_engine.set_threads(max(1, cpu_cores // 2))
         
-        logger.info(f"Memory engine configured for hardware: {memory_info.get('total_gb', 'unknown')}GB RAM")
+        total_gb = getattr(memory_info, 'total_gb', 'unknown') if memory_info else 'unknown'
+        logger.info(f"Memory engine configured for hardware: {total_gb}GB RAM")
     
     async def optimize_for_profile(self, profile: Dict[str, Any]):
         """Optimize memory for specific application profile"""
