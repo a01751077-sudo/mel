@@ -249,6 +249,8 @@ class APTS:
             
             # Vulnerability assessment
             console.print("⚔️  Phase 2: Aggressive vulnerability assessment...")
+            # Pass Ghost Mode instance to vulnerability engine
+            self.vuln_engine.ghost_mode = self.ghost_mode
             vulnerabilities = await self.vuln_engine.assess_all_targets(expanded_targets)
             
             # Exploitation phase
