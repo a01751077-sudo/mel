@@ -9,11 +9,30 @@ import gc
 import os
 import sys
 from pathlib import Path
-import lz4.frame
-import zstandard as zstd
-import blosc
 from loguru import logger
 from typing import Dict, Any
+
+# Optional compression libraries - graceful fallback if not available
+try:
+    import lz4.frame
+    HAS_LZ4 = True
+except ImportError:
+    HAS_LZ4 = False
+    logger.warning("LZ4 compression not available - using fallback")
+
+try:
+    import zstandard as zstd
+    HAS_ZSTD = True
+except ImportError:
+    HAS_ZSTD = False
+    logger.warning("Zstandard compression not available - using fallback")
+
+try:
+    import blosc
+    HAS_BLOSC = True
+except ImportError:
+    HAS_BLOSC = False
+    logger.warning("Blosc compression not available - using fallback")
 
 class HardwareOptimizer:
     """Military-grade hardware optimization system"""
@@ -21,11 +40,21 @@ class HardwareOptimizer:
     def __init__(self):
         self.optimization_active = False
         self.original_settings = {}
-        self.compression_engines = {
-            'lz4': lz4.frame,
-            'zstd': zstd.ZstdCompressor(),
-            'blosc': blosc
-        }
+        self.compression_engines = {}
+        
+        # Initialize available compression engines
+        if HAS_LZ4:
+            self.compression_engines['lz4'] = lz4.frame
+        if HAS_ZSTD:
+            self.compression_engines['zstd'] = zstd.ZstdCompressor()
+        if HAS_BLOSC:
+            self.compression_engines['blosc'] = blosc
+            
+        # Always have a fallback compression method
+        if not self.compression_engines:
+            import gzip
+            self.compression_engines['gzip'] = gzip
+            logger.info("Using gzip as fallback compression method")
         
     async def optimize_system(self):
         """Apply comprehensive system optimizations"""
@@ -205,12 +234,17 @@ class HardwareOptimizer:
         try:
             engine = self.compression_engines[self.best_compression_engine]
             
-            if self.best_compression_engine == 'lz4':
+            if self.best_compression_engine == 'lz4' and HAS_LZ4:
                 return lz4.frame.compress(data)
-            elif self.best_compression_engine == 'zstd':
+            elif self.best_compression_engine == 'zstd' and HAS_ZSTD:
                 return engine.compress(data)
-            elif self.best_compression_engine == 'blosc':
+            elif self.best_compression_engine == 'blosc' and HAS_BLOSC:
                 return blosc.compress(data, cname='zstd')
+            elif self.best_compression_engine == 'gzip':
+                import gzip
+                return gzip.compress(data)
+            else:
+                return data
                 
         except Exception as e:
             logger.error(f"Data compression failed: {e}")
@@ -224,12 +258,17 @@ class HardwareOptimizer:
         try:
             engine = self.compression_engines[self.best_compression_engine]
             
-            if self.best_compression_engine == 'lz4':
+            if self.best_compression_engine == 'lz4' and HAS_LZ4:
                 return lz4.frame.decompress(compressed_data)
-            elif self.best_compression_engine == 'zstd':
+            elif self.best_compression_engine == 'zstd' and HAS_ZSTD:
                 return zstd.ZstdDecompressor().decompress(compressed_data)
-            elif self.best_compression_engine == 'blosc':
+            elif self.best_compression_engine == 'blosc' and HAS_BLOSC:
                 return blosc.decompress(compressed_data)
+            elif self.best_compression_engine == 'gzip':
+                import gzip
+                return gzip.decompress(compressed_data)
+            else:
+                return compressed_data
                 
         except Exception as e:
             logger.error(f"Data decompression failed: {e}")
