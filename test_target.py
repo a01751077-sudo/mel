@@ -8,6 +8,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 import threading
 import time
+import urllib.parse
 
 class VulnerableHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -15,6 +16,62 @@ class VulnerableHandler(BaseHTTPRequestHandler):
         
         # Simulate vulnerable endpoints with one-line hack credentials
         vulnerable_responses = {
+            "/login": """
+            <html><body>
+            <h1>Admin Login</h1>
+            <form method="POST" action="/login">
+                <input type="text" name="username" placeholder="Username">
+                <input type="password" name="password" placeholder="Password">
+                <input type="submit" value="Login">
+            </form>
+            </body></html>
+            """,
+            
+            "/admin": """
+            <html><body>
+            <h1>Access Denied</h1>
+            <p>You need admin privileges to access this area.</p>
+            </body></html>
+            """,
+            
+            "/search": """
+            <html><body>
+            <h1>Search</h1>
+            <form method="GET">
+                <input type="text" name="q" placeholder="Search...">
+                <input type="submit" value="Search">
+            </form>
+            </body></html>
+            """,
+            
+            "/file": """
+            <html><body>
+            <h1>File Viewer</h1>
+            <form method="GET">
+                <input type="text" name="file" placeholder="File path...">
+                <input type="submit" value="View File">
+            </form>
+            </body></html>
+            """,
+            
+            "/upload": """
+            <html><body>
+            <h1>File Upload</h1>
+            <form method="POST" enctype="multipart/form-data">
+                <input type="file" name="file">
+                <input type="submit" value="Upload">
+            </form>
+            </body></html>
+            """,
+            
+            "/api/users": json.dumps({
+                "users": [
+                    {"id": 1, "username": "admin", "password": "admin123", "role": "administrator"},
+                    {"id": 2, "username": "user", "password": "user123", "role": "user"}
+                ],
+                "admin_token": "ADMIN_API_TOKEN_12345",
+                "database_password": "db_secret_123"
+            }),
             "/.env": """
 # Database Configuration
 DB_HOST=localhost
@@ -99,13 +156,125 @@ aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 """
         }
         
-        if self.path in vulnerable_responses:
+        # Handle XSS in search
+        if self.path.startswith('/search?'):
+            query = self.path.split('q=')[1] if 'q=' in self.path else ''
+            query = urllib.parse.unquote(query)
+            
+            # VULNERABLE: Reflect user input without sanitization (XSS)
+            response = f"""
+            <html><body>
+            <h1>Search Results</h1>
+            <p>You searched for: {query}</p>
+            <p>No results found.</p>
+            </body></html>
+            """
             self.send_response(200)
-            self.send_header('Content-type', 'text/plain')
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write(response.encode())
+            
+        # Handle directory traversal in file viewer
+        elif self.path.startswith('/file?'):
+            file_param = self.path.split('file=')[1] if 'file=' in self.path else ''
+            file_param = urllib.parse.unquote(file_param)
+            
+            # VULNERABLE: Directory traversal
+            if '../' in file_param or 'etc/passwd' in file_param:
+                response = """root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+admin:x:1000:1000:admin:/home/admin:/bin/bash"""
+                self.send_response(200)
+                self.send_header('Content-type', 'text/plain')
+                self.end_headers()
+                self.wfile.write(response.encode())
+            else:
+                self.send_response(404)
+                self.end_headers()
+                
+        elif self.path in vulnerable_responses:
+            content_type = 'text/html' if self.path in ['/login', '/admin', '/search', '/file', '/upload'] else 'text/plain'
+            self.send_response(200)
+            self.send_header('Content-type', content_type)
             self.end_headers()
             self.wfile.write(vulnerable_responses[self.path].encode())
         else:
             # Return 404 for other paths
+            self.send_response(404)
+            self.end_headers()
+    
+    def do_POST(self):
+        """Handle POST requests with vulnerabilities"""
+        content_length = int(self.headers.get('Content-Length', 0))
+        post_data = self.rfile.read(content_length).decode('utf-8')
+        
+        # Handle SQL injection in login
+        if self.path == '/login':
+            # Parse form data
+            params = urllib.parse.parse_qs(post_data)
+            username = params.get('username', [''])[0]
+            password = params.get('password', [''])[0]
+            
+            # VULNERABLE: SQL injection bypass
+            if "' OR '1'='1'" in username or "' OR 1=1" in username:
+                # SQL injection successful - return admin dashboard
+                response = """
+                <html><body>
+                <h1>Admin Dashboard</h1>
+                <p>Welcome, Administrator!</p>
+                <p>You have successfully logged in.</p>
+                <a href="/admin/users">Manage Users</a> |
+                <a href="/admin/settings">Settings</a> |
+                <a href="/logout">Logout</a>
+                </body></html>
+                """
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(response.encode())
+            else:
+                # Normal login failed
+                response = """
+                <html><body>
+                <h1>Login Failed</h1>
+                <p>Invalid username or password.</p>
+                <a href="/login">Try Again</a>
+                </body></html>
+                """
+                self.send_response(401)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(response.encode())
+                
+        # Handle file upload
+        elif self.path == '/upload':
+            # VULNERABLE: File upload allows any file type
+            if 'shell.php' in post_data or '<?php' in post_data:
+                response = """
+                <html><body>
+                <h1>Upload Successful</h1>
+                <p>File uploaded successfully to /uploads/shell.php</p>
+                <p>File is now accessible at <a href="/uploads/shell.php">/uploads/shell.php</a></p>
+                </body></html>
+                """
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(response.encode())
+            else:
+                response = """
+                <html><body>
+                <h1>Upload Failed</h1>
+                <p>File upload failed.</p>
+                </body></html>
+                """
+                self.send_response(400)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(response.encode())
+        else:
             self.send_response(404)
             self.end_headers()
     
