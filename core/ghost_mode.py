@@ -13,10 +13,23 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 from loguru import logger
-import stem
-from stem import Signal
-from stem.control import Controller
-import socks
+# Optional Tor support
+try:
+    import stem
+    from stem import Signal
+    from stem.control import Controller
+    HAS_STEM = True
+except ImportError:
+    HAS_STEM = False
+    logger.warning("Stem (Tor control) not available - Tor features disabled")
+
+# SOCKS proxy support
+try:
+    import socks
+    HAS_SOCKS = True
+except ImportError:
+    HAS_SOCKS = False
+    logger.warning("SOCKS support not available - using HTTP proxies only")
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 

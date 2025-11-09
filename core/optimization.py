@@ -114,15 +114,25 @@ class HardwareOptimizer:
         cpu_count = psutil.cpu_count(logical=False)
         logical_cpu_count = psutil.cpu_count(logical=True)
         
-        # Set process priority to high
+        # Set process priority to high (with proper error handling)
         try:
             process = psutil.Process()
             if sys.platform == "win32":
-                process.nice(psutil.HIGH_PRIORITY_CLASS)
+                # Windows priority classes
+                if hasattr(psutil, 'HIGH_PRIORITY_CLASS'):
+                    process.nice(psutil.HIGH_PRIORITY_CLASS)
+                else:
+                    process.nice(psutil.ABOVE_NORMAL_PRIORITY_CLASS)
             else:
-                process.nice(-10)  # Higher priority on Unix
-            logger.info("Process priority set to HIGH")
-        except Exception as e:
+                # Unix nice values (-20 to 19, lower = higher priority)
+                try:
+                    process.nice(-5)  # Moderate high priority
+                    logger.info("Process priority set to HIGH")
+                except PermissionError:
+                    # Fallback to normal priority if no permissions
+                    process.nice(0)
+                    logger.info("Process priority set to NORMAL (no root permissions)")
+        except (AttributeError, PermissionError, ProcessLookupError) as e:
             logger.warning(f"Could not set process priority: {e}")
             
         # Configure CPU affinity for maximum performance
@@ -143,10 +153,12 @@ class HardwareOptimizer:
         if sys.platform != "win32":
             try:
                 import uvloop
-                asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+                # Only set if not already set
+                if not isinstance(asyncio.get_event_loop_policy(), uvloop.EventLoopPolicy):
+                    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
                 logger.info("UV Loop enabled for maximum async performance")
-            except ImportError:
-                logger.warning("UV Loop not available, using default event loop")
+            except (ImportError, RuntimeError) as e:
+                logger.warning(f"UV Loop not available: {e}, using default event loop")
                 
         # Network buffer optimization
         self.network_config = {
@@ -209,9 +221,18 @@ class HardwareOptimizer:
         if __debug__:
             logger.warning("Python running in debug mode - performance may be reduced")
             
-        # Configure sys settings for performance
-        sys.setcheckinterval(1000)  # Reduce thread switching overhead
-        
+        # Configure sys settings for performance (Python 3.9+ compatible)
+        try:
+            # Try the old method first (Python < 3.9)
+            if hasattr(sys, 'setcheckinterval'):
+                sys.setcheckinterval(1000)
+            # Use the new method for Python 3.9+
+            elif hasattr(sys, 'setswitchinterval'):
+                sys.setswitchinterval(0.001)  # 1ms switch interval
+            logger.info("Python thread switching optimized")
+        except Exception as e:
+            logger.warning(f"Could not optimize thread switching: {e}")
+            
         # Import performance-critical modules
         performance_modules = [
             'asyncio', 'aiohttp', 'concurrent.futures',

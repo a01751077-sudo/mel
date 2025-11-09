@@ -29,6 +29,7 @@ class APTS:
         self.version = "1.0.0"
         self.codename = "GHOST_PROTOCOL"
         self.initialized = False
+        self.safe_mode = False
         self.ghost_mode_active = False
         self.targets = []
         
@@ -136,38 +137,61 @@ class APTS:
             
         except Exception as e:
             logger.error(f"System initialization failed: {e}")
-            console.print(f"[bold red]❌ Initialization failed: {e}[/bold red]")
-            sys.exit(1)
+            console.print(f"[bold red]❌ Critical initialization failed: {e}[/bold red]")
+            console.print("[yellow]⚠️ Starting in SAFE MODE with limited functionality...[/yellow]")
+            self.safe_mode = True
+            self.initialized = True
             
     async def initialize_hardware_optimization(self):
         """Initialize hardware optimization system"""
-        from core.optimization import HardwareOptimizer
-        self.optimizer = HardwareOptimizer()
-        await self.optimizer.optimize_system()
+        try:
+            from core.optimization import HardwareOptimizer
+            self.optimizer = HardwareOptimizer()
+            await self.optimizer.optimize_system()
+        except Exception as e:
+            logger.warning(f"Hardware optimization failed: {e}")
+            # Continue without optimization
+            self.optimizer = None
         
     async def initialize_ghost_mode(self):
         """Initialize Level 1: Ghost Mode"""
-        from core.ghost_mode import GhostMode
-        self.ghost_mode = GhostMode()
-        await self.ghost_mode.initialize()
+        try:
+            from core.ghost_mode import GhostMode
+            self.ghost_mode = GhostMode()
+            await self.ghost_mode.initialize()
+        except Exception as e:
+            logger.warning(f"Ghost Mode initialization failed: {e}")
+            self.ghost_mode = None
         
     async def initialize_target_system(self):
         """Initialize Level 2: Target System"""
-        from core.target_system import TargetSystem
-        self.target_system = TargetSystem()
-        await self.target_system.initialize()
+        try:
+            from core.target_system import TargetSystem
+            self.target_system = TargetSystem()
+            await self.target_system.initialize()
+        except Exception as e:
+            logger.warning(f"Target System initialization failed: {e}")
+            self.target_system = None
         
     async def initialize_vulnerability_modules(self):
         """Initialize all 30 vulnerability detection modules"""
-        from core.vulnerability_engine import VulnerabilityEngine
-        self.vuln_engine = VulnerabilityEngine()
-        await self.vuln_engine.load_all_modules()
+        try:
+            from core.vulnerability_engine import VulnerabilityEngine
+            self.vuln_engine = VulnerabilityEngine()
+            await self.vuln_engine.load_all_modules()
+        except Exception as e:
+            logger.warning(f"Vulnerability Engine initialization failed: {e}")
+            self.vuln_engine = None
         
     async def initialize_reporting_system(self):
         """Initialize encrypted reporting system"""
-        from core.reporting import ReportingEngine
-        self.reporting = ReportingEngine()
-        await self.reporting.initialize()
+        try:
+            from core.reporting import ReportingEngine
+            self.reporting = ReportingEngine()
+            await self.reporting.initialize()
+        except Exception as e:
+            logger.warning(f"Reporting System initialization failed: {e}")
+            self.reporting = None
         
     async def activate_ghost_mode(self):
         """Activate Level 1: Ghost Mode for complete anonymization"""
