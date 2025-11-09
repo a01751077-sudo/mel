@@ -51,19 +51,33 @@ class ProxyManager:
     
     def __init__(self):
         self.proxy_sources = [
-            # GitHub proxy lists (high quality)
+            # TIER 1: PREMIUM GITHUB SOURCES (MILITARY-GRADE)
             "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt",
+            "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks4.txt",
+            "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt",
             "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/http.txt",
+            "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/socks4.txt",
+            "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/socks5.txt",
             "https://raw.githubusercontent.com/proxy4parsing/proxy-list/main/http.txt",
             "https://raw.githubusercontent.com/roosterkid/openproxylist/main/HTTPS_RAW.txt",
+            "https://raw.githubusercontent.com/roosterkid/openproxylist/main/SOCKS4_RAW.txt",
+            "https://raw.githubusercontent.com/roosterkid/openproxylist/main/SOCKS5_RAW.txt",
             "https://raw.githubusercontent.com/sunny9577/proxy-scraper/master/proxies.txt",
             "https://raw.githubusercontent.com/UserR3X/proxy-list/main/online/http.txt",
+            "https://raw.githubusercontent.com/UserR3X/proxy-list/main/online/socks4.txt",
+            "https://raw.githubusercontent.com/UserR3X/proxy-list/main/online/socks5.txt",
             "https://raw.githubusercontent.com/clarketm/proxy-list/master/proxy-list-raw.txt",
             "https://raw.githubusercontent.com/hendrikbgr/Free-Proxy-Repo/master/proxy_list.txt",
             "https://raw.githubusercontent.com/jetkai/proxy-list/main/online-proxies/txt/proxies-http.txt",
+            "https://raw.githubusercontent.com/jetkai/proxy-list/main/online-proxies/txt/proxies-socks4.txt",
+            "https://raw.githubusercontent.com/jetkai/proxy-list/main/online-proxies/txt/proxies-socks5.txt",
             "https://raw.githubusercontent.com/mmpx12/proxy-list/master/http.txt",
+            "https://raw.githubusercontent.com/mmpx12/proxy-list/master/socks4.txt",
+            "https://raw.githubusercontent.com/mmpx12/proxy-list/master/socks5.txt",
             "https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/http.txt",
             "https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/https.txt",
+            "https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/socks4.txt",
+            "https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/socks5.txt",
             "https://raw.githubusercontent.com/hookzof/socks5_list/master/proxy.txt",
             "https://raw.githubusercontent.com/rdavydov/proxy-list/main/proxies/http.txt",
             "https://raw.githubusercontent.com/rdavydov/proxy-list/main/proxies_anonymous.txt",
@@ -72,18 +86,68 @@ class ProxyManager:
             "https://raw.githubusercontent.com/almroot/proxylist/master/list.txt",
             "https://raw.githubusercontent.com/aslisk/proxyhttps/main/https.txt",
             "https://raw.githubusercontent.com/B4RC0DE-TM/proxy-list/main/HTTP.txt",
+            "https://raw.githubusercontent.com/B4RC0DE-TM/proxy-list/main/SOCKS4.txt",
+            "https://raw.githubusercontent.com/B4RC0DE-TM/proxy-list/main/SOCKS5.txt",
             "https://raw.githubusercontent.com/saschazesiger/Free-Proxies/master/proxies/http.txt",
+            "https://raw.githubusercontent.com/saschazesiger/Free-Proxies/master/proxies/socks4.txt",
+            "https://raw.githubusercontent.com/saschazesiger/Free-Proxies/master/proxies/socks5.txt",
             "https://raw.githubusercontent.com/proxy-list/proxy-list/main/http.txt",
             "https://raw.githubusercontent.com/opsxcq/proxy-list/master/list.txt",
             "https://raw.githubusercontent.com/Anonym0usWork1221/Free-Proxies/main/proxy_files/http_proxies.txt",
             "https://raw.githubusercontent.com/Anonym0usWork1221/Free-Proxies/main/proxy_files/https_proxies.txt",
+            "https://raw.githubusercontent.com/Anonym0usWork1221/Free-Proxies/main/proxy_files/socks4_proxies.txt",
+            "https://raw.githubusercontent.com/Anonym0usWork1221/Free-Proxies/main/proxy_files/socks5_proxies.txt",
             
-            # Additional high-speed sources
+            # TIER 2: API SOURCES (HIGH-SPEED)
             "https://api.proxyscrape.com/v2/?request=get&protocol=http&timeout=10000&country=all",
+            "https://api.proxyscrape.com/v2/?request=get&protocol=socks4&timeout=10000&country=all",
+            "https://api.proxyscrape.com/v2/?request=get&protocol=socks5&timeout=10000&country=all",
             "https://www.proxy-list.download/api/v1/get?type=http",
+            "https://www.proxy-list.download/api/v1/get?type=https",
+            "https://www.proxy-list.download/api/v1/get?type=socks4",
+            "https://www.proxy-list.download/api/v1/get?type=socks5",
             "https://raw.githubusercontent.com/fate0/proxylist/master/proxy.list",
             "https://raw.githubusercontent.com/clarketm/proxy-list/master/proxy-list.txt",
-            "https://raw.githubusercontent.com/stamparm/aux/master/fetch-some-list.txt"
+            "https://raw.githubusercontent.com/stamparm/aux/master/fetch-some-list.txt",
+            
+            # TIER 3: ADDITIONAL PREMIUM SOURCES
+            "https://raw.githubusercontent.com/prxchk/proxy-list/main/http.txt",
+            "https://raw.githubusercontent.com/prxchk/proxy-list/main/socks4.txt",
+            "https://raw.githubusercontent.com/prxchk/proxy-list/main/socks5.txt",
+            "https://raw.githubusercontent.com/zevtyardt/proxy-list/main/http.txt",
+            "https://raw.githubusercontent.com/zevtyardt/proxy-list/main/socks4.txt",
+            "https://raw.githubusercontent.com/zevtyardt/proxy-list/main/socks5.txt",
+            "https://raw.githubusercontent.com/elliottophellia/yakumo/master/results/http/global/http_checked.txt",
+            "https://raw.githubusercontent.com/elliottophellia/yakumo/master/results/socks4/global/socks4_checked.txt",
+            "https://raw.githubusercontent.com/elliottophellia/yakumo/master/results/socks5/global/socks5_checked.txt",
+            "https://raw.githubusercontent.com/ALIILAPRO/Proxy/main/http.txt",
+            "https://raw.githubusercontent.com/ALIILAPRO/Proxy/main/socks4.txt",
+            "https://raw.githubusercontent.com/ALIILAPRO/Proxy/main/socks5.txt",
+            "https://raw.githubusercontent.com/yemixzy/proxy-list/main/proxies/http.txt",
+            "https://raw.githubusercontent.com/yemixzy/proxy-list/main/proxies/socks4.txt",
+            "https://raw.githubusercontent.com/yemixzy/proxy-list/main/proxies/socks5.txt",
+            
+            # TIER 4: ROTATING AND FRESH SOURCES
+            "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/protocols/http/data.txt",
+            "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/protocols/socks4/data.txt",
+            "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/protocols/socks5/data.txt",
+            "https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/http.txt",
+            "https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/socks4.txt",
+            "https://raw.githubusercontent.com/vakhov/fresh-proxy-list/master/socks5.txt",
+            "https://raw.githubusercontent.com/ObcbO/getproxy/master/http.txt",
+            "https://raw.githubusercontent.com/ObcbO/getproxy/master/socks4.txt",
+            "https://raw.githubusercontent.com/ObcbO/getproxy/master/socks5.txt",
+            
+            # TIER 5: SPECIALIZED SOURCES (NATION-STATE LEVEL)
+            "https://raw.githubusercontent.com/im-razvan/proxy_list/main/http.txt",
+            "https://raw.githubusercontent.com/im-razvan/proxy_list/main/socks4.txt",
+            "https://raw.githubusercontent.com/im-razvan/proxy_list/main/socks5.txt",
+            "https://raw.githubusercontent.com/Zaeem20/FREE_PROXIES_LIST/master/http.txt",
+            "https://raw.githubusercontent.com/Zaeem20/FREE_PROXIES_LIST/master/socks4.txt",
+            "https://raw.githubusercontent.com/Zaeem20/FREE_PROXIES_LIST/master/socks5.txt",
+            "https://raw.githubusercontent.com/caliphdev/Proxy-List/master/http.txt",
+            "https://raw.githubusercontent.com/caliphdev/Proxy-List/master/socks4.txt",
+            "https://raw.githubusercontent.com/caliphdev/Proxy-List/master/socks5.txt"
         ]
         
         self.proxies: List[ProxyInfo] = []
