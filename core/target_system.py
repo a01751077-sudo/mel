@@ -566,9 +566,13 @@ class TargetSystem:
             
         # Web application mapping
         if 80 in target.ports or 443 in target.ports:
-            from .ghost_mode import GhostMode
-            ghost = GhostMode()
-            session = await ghost.get_anonymous_session()
+            # Use the already activated Ghost Mode instance from APTS
+            if hasattr(self, 'ghost_mode') and self.ghost_mode and self.ghost_mode.active:
+                session = await self.ghost_mode.get_anonymous_session()
+            else:
+                # Fallback: create basic session without Ghost Mode
+                import aiohttp
+                session = aiohttp.ClientSession()
             
             try:
                 web_info = await self.web_mapper.map_application(target, session)

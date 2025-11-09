@@ -243,6 +243,8 @@ class APTS:
         try:
             # Target acquisition and reconnaissance
             console.print("🔍 Phase 1: Target acquisition and reconnaissance...")
+            # Pass Ghost Mode instance to target system
+            self.target_system.ghost_mode = self.ghost_mode
             expanded_targets = await self.target_system.acquire_targets(targets)
             
             # Vulnerability assessment
