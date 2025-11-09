@@ -1,0 +1,83 @@
+# APTS - Advanced Penetration Testing System
+# Military-Grade Dependencies
+
+# Core Framework
+asyncio
+aiohttp>=3.8.0
+aiofiles>=22.0.0
+uvloop>=0.17.0
+
+# Networking & Proxies
+requests>=2.28.0
+httpx>=0.24.0
+socks>=1.7.1
+PySocks>=1.7.1
+stem>=1.8.0  # Tor control
+scapy>=2.5.0
+
+# Web Scraping & Parsing
+beautifulsoup4>=4.11.0
+lxml>=4.9.0
+selenium>=4.8.0
+playwright>=1.30.0
+
+# Cryptography & Security
+cryptography>=40.0.0
+pycryptodome>=3.17.0
+hashlib
+bcrypt>=4.0.0
+jwt>=1.3.1
+pyotp>=2.8.0
+
+# Database Connections
+psycopg2-binary>=2.9.0
+pymongo>=4.3.0
+redis>=4.5.0
+sqlalchemy>=2.0.0
+mysql-connector-python>=8.0.0
+
+# Cloud & Infrastructure
+boto3>=1.26.0  # AWS
+azure-identity>=1.12.0  # Azure
+google-cloud-storage>=2.7.0  # GCP
+kubernetes>=26.1.0
+docker>=6.0.0
+
+# Blockchain & Crypto
+web3>=6.0.0
+eth-account>=0.8.0
+bitcoin>=1.1.42
+ecdsa>=0.18.0
+
+# Exploitation & Security Testing
+nmap>=0.0.1
+python-nmap>=0.7.1
+paramiko>=3.0.0  # SSH
+impacket>=0.10.0  # Network protocols
+pwntools>=4.9.0
+
+# Data Processing & Analysis
+pandas>=1.5.0
+numpy>=1.24.0
+matplotlib>=3.6.0
+networkx>=3.0
+
+# Compression & Optimization
+lz4>=4.3.0
+zstandard>=0.20.0
+blosc>=1.11.0
+
+# Logging & Monitoring
+loguru>=0.6.0
+rich>=13.0.0
+tqdm>=4.64.0
+
+# Configuration & Environment
+python-dotenv>=1.0.0
+pyyaml>=6.0
+toml>=0.10.2
+
+# Testing & Development
+pytest>=7.2.0
+pytest-asyncio>=0.21.0
+black>=23.0.0
